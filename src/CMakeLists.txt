@@ -31,3 +31,31 @@ add_executable(DontLookAtThem
 target_link_libraries(DontLookAtThem
   ${ModernGameEngine_LIBRARIES}
 )
+
+macro(copy_dirs GLOBPAT DESTINATION)
+  file(GLOB COPY_DIRS
+    RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+    ${GLOBPAT})
+  add_custom_target(resources ALL
+    DEPENDS ${GLOBPAT}
+    COMMENT "Copying files: ${GLOBPAT}")
+
+  foreach(FILENAME ${COPY_DIRS})
+    set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/${FILENAME}")
+    set(DST "${DESTINATION}/${FILENAME}")
+
+    add_custom_command(
+      TARGET resources
+      COMMAND ${CMAKE_COMMAND} -E remove_directory ${DST}
+    )
+
+    add_custom_command(
+      TARGET resources
+      COMMAND ${CMAKE_COMMAND} -E copy_directory ${SRC} ${DST}
+    )
+
+    add_dependencies(resources DontLookAtThem)
+  endforeach(FILENAME)
+endmacro(copy_dirs)
+
+copy_dirs(${CMAKE_SOURCE_DIR}/resources $<TARGET_FILE_DIR:DontLookAtThem>/resources)

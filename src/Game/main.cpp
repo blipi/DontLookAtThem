@@ -53,7 +53,7 @@ int main(int argc, const char* argv[]) {
 
 	// Clean GLFW
 	glfwTerminate();
-
+	
 	// Unbind all callbacks (bind/emit)
 	unbindAll();
 
