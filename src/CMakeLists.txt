@@ -38,11 +38,12 @@ macro(copy_dirs GLOBPAT DESTINATION)
     ${GLOBPAT})
   add_custom_target(resources ALL
     DEPENDS ${GLOBPAT}
+	
     COMMENT "Copying files: ${GLOBPAT}")
 
   foreach(FILENAME ${COPY_DIRS})
     set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/${FILENAME}")
-    set(DST "${DESTINATION}/${FILENAME}")
+    set(DST "${DESTINATION}")
 
     add_custom_command(
       TARGET resources
