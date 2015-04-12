@@ -18,6 +18,9 @@ public:
 	void quad(int a, int b, int c, int d);
 	void initialize() override;
 	void draw() override;
+
+	void updatePoints();
+	void update() override;
 	void rotate(glm::vec3 rotation, GLfloat angle);
 
 private:
@@ -30,4 +33,6 @@ private:
 	int Index;
 	point4 points[NumVertices]; // 36 punts: cub triangulat
 	color4 colors[NumVertices]; // colors en aquests punts
+
+	glm::mat4 _rotationMatrix;
 };

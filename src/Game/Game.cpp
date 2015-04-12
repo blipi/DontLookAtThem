@@ -7,6 +7,7 @@
 #include <Program.hpp>
 #include <Resources.hpp>
 #include <Window.hpp>
+#include <Scheduler.hpp>
 
 
 Game::Game(Window* window) :
@@ -24,11 +25,6 @@ Game::~Game()
 {
 	delete _cube;
 	delete _program;
-}
-
-int Game::update()
-{
-	return Updater::update();
 }
 
 void Game::initializeGL()
@@ -92,18 +88,34 @@ void Game::onMouseMove(double x, double y, uint8_t mouse)
 
 	if (mouse)
 	{
-		((Cube*)_cube)->rotate({ 1.0f, 0.0f, 0.0f }, xRot / 1800.0f);
-		((Cube*)_cube)->rotate({ 0.0f, 0.0f, 1.0f }, zRot / 1800.0f);
-		_window->update();
+		((Cube*)_cube)->rotate({ 1.0f, 0.0f, 1.0f }, xRot / 1800.0f);
 	}
 
 	lastX = x;
 	lastY = y;
 }
 
-void Game::draw()
+void updateWrapper(void* pointer)
 {
+	Cube* c = (Cube*)pointer;
+	c->update();
+}
+
+int Game::update()
+{
+	((Cube*)_cube)->updatePoints();
+	printf(".");
+	Core::Scheduler<time_base>::get()->sync(updateWrapper, _cube);
+
+	return Updater::update();
+}
+
+void Game::draw(float interpolate)
+{
+	printf("/");
 	/* Render here */
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	_cube->draw();
+
+	glfwSwapBuffers(**_window);
 }

@@ -10,6 +10,7 @@ public:
 
 	virtual void initialize() = 0;
 	virtual void draw() = 0;
+	virtual void update() = 0;
 
 	LFS_INLINE uint32_t getID();
 

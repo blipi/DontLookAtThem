@@ -18,10 +18,15 @@ Scheduler* scheduler = nullptr;
 
 Game* game = nullptr;
 
+void drawWrapper(void* pointer, float interpolate)
+{
+	((Game*)pointer)->draw(interpolate);
+}
+
 
 int main(int argc, const char* argv[]) {
 #if defined(LFS_COMPILER_MSVC) && defined(NDEBUG)
-	FreeConsole();
+	//FreeConsole();
 #endif
 
 	Resources::setup(argv[0], "resources");
@@ -37,9 +42,11 @@ int main(int argc, const char* argv[]) {
 
 	// Setup signal bindings
 	bind(&window, &Window::initializeGL, game, &Game::initializeGL);
-	bind(&window, &Window::draw, game, &Game::draw);
 	bind(&window, &Window::resize, game, &Game::onResize);
 	bind(&window, &Window::mousemove, game, &Game::onMouseMove);
+
+	//bind(scheduler, &Scheduler::updateEnd, game, &Game::draw);
+	scheduler->setUpdateEndCallback(drawWrapper, game);
 
 	// Enter the main loop
 	window.mainloop();

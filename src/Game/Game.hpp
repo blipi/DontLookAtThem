@@ -21,7 +21,7 @@ public:
 	virtual void initializeGL();
 	virtual void onResize(int width, int height);
 	virtual void onMouseMove(double x, double y, uint8_t mouse);
-	virtual void draw();
+	virtual void draw(float interpolate);
 
 private:
 	Window* _window;

@@ -42,7 +42,7 @@ macro(copy_dirs GLOBPAT DESTINATION)
     COMMENT "Copying files: ${GLOBPAT}")
 
   foreach(FILENAME ${COPY_DIRS})
-    set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/${FILENAME}")
+    set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/")
     set(DST "${DESTINATION}")
 
     add_custom_command(

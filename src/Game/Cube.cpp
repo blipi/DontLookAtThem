@@ -75,15 +75,26 @@ void Cube::draw()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Cube::rotate(glm::vec3 rotation, GLfloat angle)
+void Cube::updatePoints()
 {
-	glm::mat4 rotationMatrix = glm::rotate(glm::mat4(), angle, rotation);
 	for (int i = 0; i < NumVertices; ++i)
 	{
-		points[i] = rotationMatrix * points[i];
+		points[i] = _rotationMatrix * points[i];
 	}
 
+	_rotationMatrix = glm::mat4();
+}
+
+void Cube::update()
+{
 	glBindBuffer(GL_ARRAY_BUFFER, _buffers);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(points), &points[0]);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void Cube::rotate(glm::vec3 rotation, GLfloat angle)
+{
+	//_rotationMatrix *= glm::rotate(glm::mat4(), angle, rotation);
+	glm::vec3 rot{ 1.0f, 0.0f, 1.0f };
+	_rotationMatrix = glm::rotate(glm::mat4(), (GLfloat)0.01f, rot);
 }
