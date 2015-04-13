@@ -39,20 +39,22 @@ macro(copy_dirs GLOBPAT DESTINATION)
   add_custom_target(resources ALL
     DEPENDS ${GLOBPAT}
 	
-    COMMENT "Copying files: ${GLOBPAT}")
+    COMMENT "Copying files: ${COPY_DIRS}")
 
   foreach(FILENAME ${COPY_DIRS})
-    set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/")
+    set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/${FILENAME}")
     set(DST "${DESTINATION}")
 
     add_custom_command(
       TARGET resources
       COMMAND ${CMAKE_COMMAND} -E remove_directory ${DST}
+		COMMENT "Remove ${DST}"
     )
 
     add_custom_command(
       TARGET resources
       COMMAND ${CMAKE_COMMAND} -E copy_directory ${SRC} ${DST}
+	  COMMENT "copy_directory ${SRC} ${DST}"
     )
 
     add_dependencies(resources DontLookAtThem)

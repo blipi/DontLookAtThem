@@ -3,7 +3,7 @@
 #include <Updater.hpp>
 
 class Window;
-class Object;
+class Cube;
 
 namespace Shader
 {
@@ -27,12 +27,14 @@ private:
 	Window* _window;
 	Shader::Program* _program;
 
-	Object* _cube;
+	std::vector<Cube*> _floor;
 
-	double xRot;
-	double yRot;
-	double zRot;
+	double _xRot;
+	double _yRot;
+	double _zRot;
+	
+	double _lastX;
+	double _lastY;
 
-	double lastX;
-	double lastY;
+	glm::vec3 _sceneDimensions;
 };

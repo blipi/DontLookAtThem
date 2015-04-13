@@ -13,17 +13,42 @@
 Game::Game(Window* window) :
 Updater(),
 _window(window),
-xRot(0), yRot(0), zRot(0),
-lastX(0), lastY(0)
+_xRot(0), _yRot(0), _zRot(0),
+_lastX(0), _lastY(0),
+_sceneDimensions(20, 20, 20)
 {
 	_program = new Shader::Program();
-	_cube = new Cube(0, _program);
-	_cube->initialize();
+
+	Cube* _cube = new Cube(0, _program);
+	_cube->initialize(_sceneDimensions);
+	//_cube->translate(glm::vec3(0, 0, -1));
+
+	// x, z, y = 
+	_floor.push_back(_cube);
+
+	/*
+	for (int i = 0; i < 20; ++i)
+	{
+	for (int j = 0; j < 20; ++j)
+	{
+	Cube* _cube = new Cube(i * 20 + j, _program);
+	_cube->initialize(_sceneDimensions);
+	//_cube->translate(glm::vec3(0, 0, -1));
+
+	// x, z, y =
+	_floor.push_back(_cube);
+	}
+	}
+	*/
 }
 
 Game::~Game()
 {
-	delete _cube;
+	for (auto* cube : _floor)
+	{
+		delete cube;
+	}
+
 	delete _program;
 }
 
@@ -70,52 +95,53 @@ void Game::onResize(int width, int height)
 
 void Game::onMouseMove(double x, double y, uint8_t mouse)
 {
-	double dx = x - lastX;
-	double dy = y - lastY;
+	double dx = x - _lastX;
+	double dy = y - _lastY;
 
 	if (mouse & Mouse::LeftButton) {
-		xRot += dy;
+		_xRot += dy;
 	}
 	else if (mouse & Mouse::RightButton) {
-		xRot += dy;
-		zRot += dx;
+		_xRot += dy;
+		_zRot += dx;
 	}
 
-	while (xRot > 360)
-		xRot -= 180;
-	while (zRot > 360)
-		zRot -= 180;
+	while (_xRot > 360)
+		_xRot -= 180;
+	while (_zRot > 360)
+		_zRot -= 180;
 
 	if (mouse)
 	{
-		((Cube*)_cube)->rotate({ 1.0f, 0.0f, 1.0f }, xRot / 1800.0f);
+		((Cube*)_floor[0])->rotate({ 1.0f, 0.0f, 1.0f }, _xRot / 180.0f);
 	}
 
-	lastX = x;
-	lastY = y;
-}
-
-void updateWrapper(void* pointer)
-{
-	Cube* c = (Cube*)pointer;
-	c->update();
+	_lastX = x;
+	_lastY = y;
 }
 
 int Game::update()
 {
-	((Cube*)_cube)->updatePoints();
 	printf(".");
-	Core::Scheduler<time_base>::get()->sync(updateWrapper, _cube);
+
+	for (size_t i = 0; i < _floor.size(); ++i)
+	{
+		_floor[i]->update(nullptr);
+		//Pool::ThreadPool::get()->enqueue(&Cube::update, (Object*)_floor[i], nullptr);
+	}
 
 	return Updater::update();
 }
 
 void Game::draw(float interpolate)
 {
-	printf("/");
 	/* Render here */
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	_cube->draw();
+
+	for (size_t i = 0; i < _floor.size(); ++i)
+	{
+		_floor[i]->draw(interpolate);
+	}
 
 	glfwSwapBuffers(**_window);
 }

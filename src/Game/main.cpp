@@ -18,11 +18,6 @@ Scheduler* scheduler = nullptr;
 
 Game* game = nullptr;
 
-void drawWrapper(void* pointer, float interpolate)
-{
-	((Game*)pointer)->draw(interpolate);
-}
-
 
 int main(int argc, const char* argv[]) {
 #if defined(LFS_COMPILER_MSVC) && defined(NDEBUG)
@@ -45,8 +40,7 @@ int main(int argc, const char* argv[]) {
 	bind(&window, &Window::resize, game, &Game::onResize);
 	bind(&window, &Window::mousemove, game, &Game::onMouseMove);
 
-	//bind(scheduler, &Scheduler::updateEnd, game, &Game::draw);
-	scheduler->setUpdateEndCallback(drawWrapper, game);
+	bind(scheduler, &Scheduler::updateEnd, game, &Game::draw);
 
 	// Enter the main loop
 	window.mainloop();
