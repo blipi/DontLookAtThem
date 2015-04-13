@@ -17,7 +17,7 @@ public:
 	void initialize(glm::vec3 sceneDimensions) override;
 	void draw(float interpolate) override;
 
-	void updateCPU() override;
+	void updateCPU();
 	void updateGPU() override;
 
 private:

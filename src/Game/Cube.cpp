@@ -52,20 +52,18 @@ void Cube::initialize(glm::vec3 sceneDimensions)
 	quad(4, 5, 6, 7);
 	quad(5, 4, 0, 1);
 
-	/*
 	glm::mat4 scale = glm::scale(glm::mat4(), glm::vec3(1 / sceneDimensions[0], 1 / sceneDimensions[1], 1 / sceneDimensions[2]));
 	for (int i = 0; i < numVertices; ++i)
 	{
 		_points[i] = scale * _points[i];
 	}
-	*/
 
 	glGenBuffers(1, &_buffers);
 	glBindBuffer(GL_ARRAY_BUFFER, _buffers);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(_points) + sizeof(_colors), NULL, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(point4) * numVertices + sizeof(point4) * numVertices, NULL, GL_STATIC_DRAW);
 
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(_points), &_points[0]);
-	glBufferSubData(GL_ARRAY_BUFFER, sizeof(_points), sizeof(_colors), &_colors[0]);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(point4) * numVertices, &_points[0]);
+	glBufferSubData(GL_ARRAY_BUFFER, sizeof(point4) * numVertices, sizeof(point4) * numVertices, &_colors[0]);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
@@ -84,7 +82,7 @@ void Cube::draw(float interpolate)
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(_program->attributeLocation("vPosition"), 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(_program->attributeLocation("vColor"), 4, GL_FLOAT, GL_FALSE, 0, (void*)sizeof(_points));
+	glVertexAttribPointer(_program->attributeLocation("vColor"), 4, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(point4) * numVertices));
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //GL_LINE
 	glDrawArrays(GL_TRIANGLES, 0, numVertices);
@@ -105,6 +103,6 @@ void Cube::updateCPU()
 void Cube::updateGPU()
 {
 	glBindBuffer(GL_ARRAY_BUFFER, _buffers);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(_points), &_points[0]);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(point4) * numVertices, &_points[0]);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }

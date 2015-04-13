@@ -28,7 +28,7 @@ private:
 	Shader::Program* _program;
 
 	std::vector<Cube*> _floor;
-
+	
 	double _xRot;
 	double _yRot;
 	double _zRot;

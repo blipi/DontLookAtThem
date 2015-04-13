@@ -12,34 +12,24 @@
 
 Game::Game(Window* window) :
 Updater(),
-_window(window),
-_xRot(0), _yRot(0), _zRot(0),
-_lastX(0), _lastY(0),
-_sceneDimensions(20, 20, 20)
+	_window(window),
+	_xRot(0), _yRot(0), _zRot(0),
+	_lastX(0), _lastY(0),
+	_sceneDimensions(20, 20, 20)
 {
 	_program = new Shader::Program();
 
-	Cube* _cube = new Cube(0, _program);
-	_cube->initialize(_sceneDimensions);
-	//_cube->translate(glm::vec3(0, 0, -1));
-
-	// x, z, y = 
-	_floor.push_back(_cube);
-
-	/*
 	for (int i = 0; i < 20; ++i)
 	{
-	for (int j = 0; j < 20; ++j)
-	{
-	Cube* _cube = new Cube(i * 20 + j, _program);
-	_cube->initialize(_sceneDimensions);
-	//_cube->translate(glm::vec3(0, 0, -1));
+		for (int j = 0; j < 20; ++j)
+		{
+			Cube* cube = new Cube(0, _program);
+			cube->initialize(_sceneDimensions);
+			cube->translate(glm::vec3(- 1 + i / 20.0f, -1 + j / 20.0f, 0)); 
 
-	// x, z, y =
-	_floor.push_back(_cube);
+			_floor.push_back(cube);
+		}
 	}
-	}
-	*/
 }
 
 Game::~Game()
@@ -48,7 +38,6 @@ Game::~Game()
 	{
 		delete cube;
 	}
-
 	delete _program;
 }
 
@@ -113,9 +102,9 @@ void Game::onMouseMove(double x, double y, uint8_t mouse)
 
 	if (mouse)
 	{
-		((Cube*)_floor[0])->rotate({ 1.0f, 0.0f, 1.0f }, _xRot / 180.0f);
+		//((Cube*)_cube)->rotate({ 1.0f, 0.0f, 1.0f }, _xRot / 180.0f);
 	}
-
+	
 	_lastX = x;
 	_lastY = y;
 }
@@ -126,8 +115,7 @@ int Game::update()
 
 	for (size_t i = 0; i < _floor.size(); ++i)
 	{
-		_floor[i]->update(nullptr);
-		//Pool::ThreadPool::get()->enqueue(&Cube::update, (Object*)_floor[i], nullptr);
+		Pool::ThreadPool::get()->enqueue(&Cube::update, (Object*)_floor[i], nullptr);
 	}
 
 	return Updater::update();
