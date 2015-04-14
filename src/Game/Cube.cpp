@@ -19,14 +19,14 @@ Cube::Cube(const uint32_t id, Shader::Program* program) :
 	vertices[7] = point4(0.5, -0.5, -0.5, 1.0);
 
 	// RGBA colors
-	vertex_colors[0] = color4(0.0, 0.0, 0.0, 1.0);  // black
-	vertex_colors[1] = color4(1.0, 0.0, 0.0, 1.0);  // red
-	vertex_colors[2] = color4(1.0, 1.0, 0.0, 1.0);  // yellow
-	vertex_colors[3] = color4(0.0, 1.0, 0.0, 1.0);  // green
-	vertex_colors[4] = color4(0.0, 0.0, 1.0, 1.0);  // blue
-	vertex_colors[5] = color4(1.0, 0.0, 1.0, 1.0);  // magenta
-	vertex_colors[6] = color4(1.0, 1.0, 1.0, 1.0);  // white
-	vertex_colors[7] = color4(0.0, 1.0, 1.0, 1.0);  // cyan
+	vertex_colors[0] = color4(0.0, 0.0, 1.0, 1.0);  // cyan
+	vertex_colors[1] = color4(1.0, 1.0, 1.0, 1.0);  // cyan
+	vertex_colors[2] = color4(1.0, 1.0, 1.0, 1.0);  // cyan
+	vertex_colors[3] = color4(1.0, 1.0, 0.0, 1.0);  // cyan
+	vertex_colors[4] = color4(0.0, 1.0, 0.0, 1.0);  // cyan
+	vertex_colors[5] = color4(0.0, 1.0, 1.0, 1.0);  // cyan
+	vertex_colors[6] = color4(0.0, 0.0, 0.0, 1.0);  // cyan
+	vertex_colors[7] = color4(0.0, 0.0, 0.5, 1.0);  // cyan
 }
 
 void Cube::quad(int a, int b, int c, int d)
@@ -39,7 +39,7 @@ void Cube::quad(int a, int b, int c, int d)
 	_colors[Index] = vertex_colors[d]; _points[Index] = vertices[d]; Index++;
 }
 
-void Cube::initialize(glm::vec3 sceneDimensions)
+void Cube::initialize()
 {
 	_points = new point4[numVertices];
 	_colors = new point4[numVertices];
@@ -52,11 +52,12 @@ void Cube::initialize(glm::vec3 sceneDimensions)
 	quad(4, 5, 6, 7);
 	quad(5, 4, 0, 1);
 
-	glm::mat4 scale = glm::scale(glm::mat4(), glm::vec3(1 / sceneDimensions[0], 1 / sceneDimensions[1], 1 / sceneDimensions[2]));
+	/*
+	glm::mat4 scale = glm::scale(glm::mat4(), glm::vec3(2 / sceneDimensions[0], 2 / sceneDimensions[1], 2 / sceneDimensions[2]));
 	for (int i = 0; i < numVertices; ++i)
 	{
 		_points[i] = scale * _points[i];
-	}
+	}*/
 
 	glGenBuffers(1, &_buffers);
 	glBindBuffer(GL_ARRAY_BUFFER, _buffers);

@@ -14,7 +14,7 @@ public:
 	Cube(const uint32_t id, Shader::Program* program);
 
 	void quad(int a, int b, int c, int d);
-	void initialize(glm::vec3 sceneDimensions) override;
+	void initialize() override;
 	void draw(float interpolate) override;
 
 	void updateCPU();

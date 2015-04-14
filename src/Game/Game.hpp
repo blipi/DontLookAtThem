@@ -4,6 +4,7 @@
 
 class Window;
 class Cube;
+class Camera;
 
 namespace Shader
 {
@@ -27,6 +28,7 @@ private:
 	Window* _window;
 	Shader::Program* _program;
 
+	Camera* _camera;
 	std::vector<Cube*> _floor;
 	
 	double _xRot;

@@ -11,9 +11,10 @@ IN vec4 vColor;
 
 OUT vec4 color;
 
+uniform mat4 MVP;
 
 void main()
 {
-  gl_Position = vPosition;
+  gl_Position = MVP*vPosition;
   color = vColor;
 }

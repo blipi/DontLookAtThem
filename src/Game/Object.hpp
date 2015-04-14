@@ -11,7 +11,7 @@ public:
 	Object(const uint32_t id);
 	virtual ~Object();
 
-	virtual void initialize(glm::vec3 sceneDimensions) = 0;
+	virtual void initialize() = 0;
 	virtual void draw(float interpolate) = 0;
 	
 	virtual void updateCPU() = 0;

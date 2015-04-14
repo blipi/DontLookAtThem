@@ -3,6 +3,7 @@
 
 #include "Cube.hpp"
 #include "Object.hpp"
+#include "Camera.hpp"
 
 #include <Program.hpp>
 #include <Resources.hpp>
@@ -17,15 +18,17 @@ Updater(),
 	_lastX(0), _lastY(0),
 	_sceneDimensions(20, 20, 20)
 {
+	_window->setMouseFixed();
 	_program = new Shader::Program();
+	_camera = new Camera(_sceneDimensions);
 
 	for (int i = 0; i < 20; ++i)
 	{
 		for (int j = 0; j < 20; ++j)
 		{
 			Cube* cube = new Cube(0, _program);
-			cube->initialize(_sceneDimensions);
-			cube->translate(glm::vec3(- 1 + i / 20.0f, -1 + j / 20.0f, 0)); 
+			cube->initialize();
+			cube->translate(glm::vec3(-9.50 + i, 0, -9.50 + j));
 
 			_floor.push_back(cube);
 		}
@@ -38,6 +41,7 @@ Game::~Game()
 	{
 		delete cube;
 	}
+	delete _camera;
 	delete _program;
 }
 
@@ -59,6 +63,10 @@ void Game::initializeGL()
 	_program->link();
 	_program->bind();
 
+	/* Create Model matrix for MVP */
+	glUniformMatrix4fv(_program->uniformLocation("MVP"), 1, GL_FALSE, &_camera->getMVP()[0][0]);
+	printf("Error: %u\n", glGetError());
+
 	/* Clear color */
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -72,21 +80,15 @@ void Game::onResize(int width, int height)
 	int side = std::min(width, height);
 	glViewport((width - side) / 2, (height - side) / 2, side, side);
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-#ifdef QT_OPENGL_ES_1
-	glOrthof(-1.5, +1.5, -1.5, +1.5, 0.0, 15.0);
-#else
-	glOrtho(-1.5, +1.5, -1.5, +1.5, 0.0, 15.0);
-#endif
-	glMatrixMode(GL_MODELVIEW);
+	_camera->setAspect(width > height ? float(width) / float(height) : float(height) / float(width));
+	glUniformMatrix4fv(_program->uniformLocation("MVP"), 1, GL_FALSE, &_camera->getMVP()[0][0]);
 }
 
 void Game::onMouseMove(double x, double y, uint8_t mouse)
 {
-	double dx = x - _lastX;
-	double dy = y - _lastY;
-
+	double dx = x - _window->getWidth() / 2.0f;
+	double dy = y - _window->getHeight() / 2.0f;
+	
 	if (mouse & Mouse::LeftButton) {
 		_xRot += dy;
 	}
@@ -104,9 +106,6 @@ void Game::onMouseMove(double x, double y, uint8_t mouse)
 	{
 		//((Cube*)_cube)->rotate({ 1.0f, 0.0f, 1.0f }, _xRot / 180.0f);
 	}
-	
-	_lastX = x;
-	_lastY = y;
 }
 
 int Game::update()
