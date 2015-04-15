@@ -17,11 +17,13 @@ public:
 	Game(Window* window);
 	virtual ~Game();
 
+	void mainThread();
 	virtual int update() override;
+	void updateCamera(bool onMain = false);
+	virtual void handleInput();
 
 	virtual void initializeGL();
 	virtual void onResize(int width, int height);
-	virtual void onMouseMove(double x, double y, uint8_t mouse);
 	virtual void draw(float interpolate);
 
 private:
@@ -31,12 +33,11 @@ private:
 	Camera* _camera;
 	std::vector<Cube*> _floor;
 	
-	double _xRot;
-	double _yRot;
-	double _zRot;
-	
-	double _lastX;
-	double _lastY;
+	bool _cameraMoved;
+	double _deltaX;
+	double _deltaY;
+	glm::vec3 _cameraSpeed;
+	glm::vec3 _cameraMovement;
 
 	glm::vec3 _sceneDimensions;
 };

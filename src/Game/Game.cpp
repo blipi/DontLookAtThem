@@ -14,9 +14,9 @@
 Game::Game(Window* window) :
 Updater(),
 	_window(window),
-	_xRot(0), _yRot(0), _zRot(0),
-	_lastX(0), _lastY(0),
-	_sceneDimensions(20, 20, 20)
+	_sceneDimensions(20, 20, 20),
+	_cameraMoved(false),
+	_cameraSpeed(0.0016f, 0.0016f, 0.0016f)
 {
 	_window->setMouseFixed();
 	_program = new Shader::Program();
@@ -33,6 +33,10 @@ Updater(),
 			_floor.push_back(cube);
 		}
 	}
+	
+	uint8_t b;
+	double x, y;
+	_window->getMouseDelta(b, x, y);
 }
 
 Game::~Game()
@@ -81,36 +85,74 @@ void Game::onResize(int width, int height)
 	glViewport((width - side) / 2, (height - side) / 2, side, side);
 
 	_camera->setAspect(width > height ? float(width) / float(height) : float(height) / float(width));
-	glUniformMatrix4fv(_program->uniformLocation("MVP"), 1, GL_FALSE, &_camera->getMVP()[0][0]);
+	_camera->toGPU(_program);
 }
 
-void Game::onMouseMove(double x, double y, uint8_t mouse)
+void Game::mainThread()
 {
-	double dx = x - _window->getWidth() / 2.0f;
-	double dy = y - _window->getHeight() / 2.0f;
+	_camera->toGPU(_program);
+}
+
+void Game::handleInput()
+{
+	uint8_t buttons;
+
+	_window->getMouseDelta(buttons, _deltaX, _deltaY);
 	
-	if (mouse & Mouse::LeftButton) {
-		_xRot += dy;
+	if (buttons & Mouse::LeftButton) {
+		
 	}
-	else if (mouse & Mouse::RightButton) {
-		_xRot += dy;
-		_zRot += dx;
+	else if (buttons & Mouse::RightButton) {
+		
 	}
 
-	while (_xRot > 360)
-		_xRot -= 180;
-	while (_zRot > 360)
-		_zRot -= 180;
+	//WASD
+	_cameraMoved = false;
 
-	if (mouse)
+	if (_window->isKeyPressed(Keys::W))
 	{
-		//((Cube*)_cube)->rotate({ 1.0f, 0.0f, 1.0f }, _xRot / 180.0f);
+		_cameraMovement = glm::vec3(1, 0, 0);
+		_cameraMoved = true;
 	}
+	else if (_window->isKeyPressed(Keys::S))
+	{
+		_cameraMovement = glm::vec3(-1, 0, 0);
+		_cameraMoved = true;
+	}
+	else
+	{
+		_cameraMovement = glm::vec3(0, 0, 0);
+	}
+	
+	if (_window->isKeyPressed(Keys::A))
+	{
+		_cameraMovement += glm::vec3(0, 0, -1);
+		_cameraMoved = true;
+	}
+	else if (_window->isKeyPressed(Keys::D))
+	{
+		_cameraMovement += glm::vec3(0, 0, 1);
+		_cameraMoved = true;
+	}
+
+	if (_window->isKeyPressed(Keys::SPACE))
+	{
+		_cameraMovement += glm::vec3(0, 1, 0);
+		_cameraMoved = true;
+	}
+	else if (_window->isKeyPressed(Keys::LEFT_SHIFT))
+	{
+		_cameraMovement += glm::vec3(0, -1, 0);
+		_cameraMoved = true;
+	}
+
+	updateCamera();
 }
 
 int Game::update()
 {
 	printf(".");
+	handleInput();
 
 	for (size_t i = 0; i < _floor.size(); ++i)
 	{
@@ -120,8 +162,35 @@ int Game::update()
 	return Updater::update();
 }
 
+void Game::updateCamera(bool onMain/* = false*/)
+{
+	if (_deltaX != 0 || _deltaY != 0 || _cameraMoved)
+	{
+		if (_deltaX != 0 || _deltaY != 0)
+		{
+			_camera->rotateCamera(_deltaX * 0.0016f, _deltaY * 0.0016f);
+		}
+
+		if (_cameraMoved)
+		{
+			_camera->moveCamera(_cameraSpeed, _cameraMovement);
+		}
+
+		if (!onMain)
+		{
+			Core::Scheduler<time_base>::get()->sync(&Game::mainThread, this);
+		}
+		else
+		{
+			mainThread();
+		}
+	}
+}
+
 void Game::draw(float interpolate)
 {
+	updateCamera();
+
 	/* Render here */
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
