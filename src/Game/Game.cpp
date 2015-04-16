@@ -15,6 +15,8 @@ Game::Game(Window* window) :
 Updater(),
     _window(window),
     _sceneDimensions(20, 20, 20),
+    _deltaX(0),
+    _deltaY(0),
     _cameraMoved(false),
     _cameraSpeed(0.0016f, 0.0016f, 0.0016f)
 {

@@ -83,7 +83,7 @@ void Cube::draw(float interpolate)
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(_program->attributeLocation("vPosition"), 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(_program->attributeLocation("vColor"), 4, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(point4) * numVertices));
+    glVertexAttribPointer(_program->attributeLocation("vColor"), 4, GL_FLOAT, GL_FALSE, 0, (void *)(sizeof(point4) * numVertices));
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //GL_LINE
     glDrawArrays(GL_TRIANGLES, 0, numVertices);

@@ -38,7 +38,6 @@ int main(int argc, const char* argv[]) {
     // Setup signal bindings
     bind(&window, &Window::initializeGL, game, &Game::initializeGL);
     bind(&window, &Window::resize, game, &Game::onResize);
-
     bind(scheduler, &Scheduler::updateEnd, game, &Game::draw);
 
     // Enter the main loop
