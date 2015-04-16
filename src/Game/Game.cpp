@@ -71,14 +71,9 @@ void Game::initializeGL()
 
     /* Create Model matrix for MVP */
     glUniformMatrix4fv(_program->uniformLocation("MVP"), 1, GL_FALSE, &_camera->getMVP()[0][0]);
-    printf("Error: %u\n", glGetError());
 
     /* Clear color */
     glClearColor(0, 0, 0, 1);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    /* Update (UNIX won't render unless called, Windows does) */
-    _window->update();
 }
 
 void Game::onResize(int width, int height)
@@ -106,6 +101,12 @@ void Game::handleInput()
     }
     else if (buttons & Mouse::RightButton) {
         
+    }
+
+    // L
+    if (_window->isKeyPressed(Keys::L))
+    {
+        _camera->setLocked(!_camera->getLocked());
     }
 
     //WASD
@@ -153,7 +154,6 @@ void Game::handleInput()
 
 int Game::update()
 {
-    printf(".");
     handleInput();
 
     for (size_t i = 0; i < _floor.size(); ++i)
