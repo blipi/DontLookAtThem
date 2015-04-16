@@ -14,11 +14,9 @@ public:
     virtual void initialize() = 0;
     virtual void draw(float interpolate) = 0;
     
-    virtual void updateCPU() = 0;
+    virtual int updateCPU(void* arg0) = 0;
     virtual void updateGPU() = 0;
-
-    LFS_INLINE int update(void*);
-
+	
     LFS_INLINE uint32_t getID();
 
     LFS_INLINE void rotate(glm::vec3 rotation, GLfloat angle);
@@ -39,13 +37,6 @@ uint32_t Object::getID()
 {
     return _id;
 }
-
-int Object::update(void*) {
-    updateCPU();
-    Core::Scheduler<time_base>::get()->sync(&Object::updateGPU, this);
-    return 1;
-}
-
 
 void Object::rotate(glm::vec3 rotation, GLfloat angle) {
     _transformations *= glm::rotate(glm::mat4(), angle, rotation);

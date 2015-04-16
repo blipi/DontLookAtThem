@@ -85,11 +85,6 @@ void Game::onResize(int width, int height)
     _camera->toGPU(_program);
 }
 
-void Game::mainThread()
-{
-    _camera->toGPU(_program);
-}
-
 void Game::handleInput()
 {
     uint8_t buttons;
@@ -148,20 +143,30 @@ void Game::handleInput()
         _cameraMovement += glm::vec3(0, -1, 0);
         _cameraMoved = true;
     }
-
-    updateCamera();
 }
 
-int Game::update()
+int Game::updateCPU(void* arg0)
 {
     handleInput();
 
     for (size_t i = 0; i < _floor.size(); ++i)
     {
-        Pool::ThreadPool::get()->enqueue(&Cube::update, (Object*)_floor[i], nullptr);
+        Pool::ThreadPool::get()->enqueue<Cube>(&Cube::updateCPU, _floor[i], nullptr);
     }
 
-    return Updater::update();
+    return Updater::updateCPU(arg0);
+}
+
+int Game::updateGPU()
+{
+	for (size_t i = 0; i < _floor.size(); ++i)
+	{
+		_floor[i]->updateGPU();
+	}
+
+	_camera->toGPU(_program);
+
+	return Updater::updateGPU();
 }
 
 void Game::updateCamera(bool onMain/* = false*/)
@@ -176,15 +181,6 @@ void Game::updateCamera(bool onMain/* = false*/)
         if (_cameraMoved)
         {
             _camera->moveCamera(_cameraSpeed, _cameraMovement);
-        }
-
-        if (!onMain)
-        {
-            Core::Scheduler<time_base>::get()->sync(&Game::mainThread, this);
-        }
-        else
-        {
-            mainThread();
         }
     }
 }

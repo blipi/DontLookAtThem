@@ -18,7 +18,8 @@ public:
     virtual ~Game();
 
     void mainThread();
-    virtual int update() override;
+	virtual int updateCPU(void* arg0) override;
+	virtual int updateGPU() override;
     void updateCamera(bool onMain = false);
     virtual void handleInput();
 

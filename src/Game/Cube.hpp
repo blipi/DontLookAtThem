@@ -17,7 +17,7 @@ public:
     void initialize() override;
     void draw(float interpolate) override;
 
-    void updateCPU();
+	int updateCPU(void* arg0) override;
     void updateGPU() override;
 
 private:

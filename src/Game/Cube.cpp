@@ -73,7 +73,7 @@ void Cube::draw(float interpolate)
 {
     if (interpolate > 0)
     {
-        updateCPU();
+        updateCPU(nullptr);
         updateGPU();
     }
 
@@ -91,7 +91,7 @@ void Cube::draw(float interpolate)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Cube::updateCPU()
+int Cube::updateCPU(void* arg0)
 {
     for (int i = 0; i < numVertices; ++i)
     {
@@ -99,6 +99,7 @@ void Cube::updateCPU()
     }
 
     _transformations = glm::mat4();
+	return 1;
 }
 
 void Cube::updateGPU()
