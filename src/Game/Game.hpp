@@ -8,36 +8,36 @@ class Camera;
 
 namespace Shader
 {
-	class Program;
+    class Program;
 }
 
 class Game : public Core::Updater
 {
 public:
-	Game(Window* window);
-	virtual ~Game();
+    Game(Window* window);
+    virtual ~Game();
 
-	void mainThread();
-	virtual int update() override;
-	void updateCamera(bool onMain = false);
-	virtual void handleInput();
+    void mainThread();
+    virtual int update() override;
+    void updateCamera(bool onMain = false);
+    virtual void handleInput();
 
-	virtual void initializeGL();
-	virtual void onResize(int width, int height);
-	virtual void draw(float interpolate);
+    virtual void initializeGL();
+    virtual void onResize(int width, int height);
+    virtual void draw(float interpolate);
 
 private:
-	Window* _window;
-	Shader::Program* _program;
+    Window* _window;
+    Shader::Program* _program;
 
-	Camera* _camera;
-	std::vector<Cube*> _floor;
-	
-	bool _cameraMoved;
-	double _deltaX;
-	double _deltaY;
-	glm::vec3 _cameraSpeed;
-	glm::vec3 _cameraMovement;
+    Camera* _camera;
+    std::vector<Cube*> _floor;
+    
+    bool _cameraMoved;
+    double _deltaX;
+    double _deltaY;
+    glm::vec3 _cameraSpeed;
+    glm::vec3 _cameraMovement;
 
-	glm::vec3 _sceneDimensions;
+    glm::vec3 _sceneDimensions;
 };
