@@ -6,10 +6,13 @@
 #define OUT out
 #endif
 
+uniform sampler2D texSampler;
+
+IN vec2 texCoords;
 IN vec4 color;
 
 void main()
 {
-   gl_FragColor = color;
-
+   //gl_FragColor = color;
+   gl_FragColor = texture(texSampler, texCoords.st);
 }

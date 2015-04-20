@@ -9,6 +9,7 @@
 #include <Resources.hpp>
 #include <Window.hpp>
 #include <Scheduler.hpp>
+#include <Texture.hpp>
 
 
 Game::Game(Window* window) :
@@ -18,18 +19,21 @@ Updater(),
     _deltaX(0),
     _deltaY(0),
     _cameraMoved(false),
-    _cameraSpeed(0.0016f, 0.0016f, 0.0016f)
+	_baseSpeed(2 / 10.0f * Scheduler::get()->dt(), 2 / 10.0f * Scheduler::get()->dt(), 2 / 10.0f * Scheduler::get()->dt()),
+	_cameraSpeed(_baseSpeed)
 {
     _window->setMouseFixed();
     _program = new Shader::Program();
     _camera = new Camera(_sceneDimensions);
+
+	Shader::Texture* texture = new Shader::Texture(Resources::getPath("terrain", "grass_green_d.DDS").c_str());
 
     for (int i = 0; i < 20; ++i)
     {
         for (int j = 0; j < 20; ++j)
         {
             Cube* cube = new Cube(0, _program);
-            cube->initialize();
+            cube->initialize((void*)texture);
             cube->translate(glm::vec3(-9.50 + i, 0, -9.50 + j));
 
             _floor.push_back(cube);
@@ -63,7 +67,8 @@ void Game::initializeGL()
 
     /* Bind varying locations to fixed index */
     _program->bindAttribute("vPosition", 0);
-    _program->bindAttribute("vColor", 1);
+	_program->bindAttribute("vColor", 1);
+	_program->bindAttribute("vTexCoords", 2);
 
     /* Link program and bind */
     _program->link();
@@ -71,6 +76,7 @@ void Game::initializeGL()
 
     /* Create Model matrix for MVP */
     glUniformMatrix4fv(_program->uniformLocation("MVP"), 1, GL_FALSE, &_camera->getMVP()[0][0]);
+	glUniform1i(_program->uniformLocation("MVP"), 0);
 
     /* Clear color */
     glClearColor(0, 0, 0, 1);
@@ -140,54 +146,60 @@ void Game::handleInput()
     }
     else if (_window->isKeyPressed(Keys::LEFT_SHIFT))
     {
-        _cameraMovement += glm::vec3(0, -1, 0);
-        _cameraMoved = true;
+		if (_camera->getLocked())
+		{
+			_cameraSpeed = _baseSpeed * 2.5f;
+		}
+		else
+		{
+			_cameraMovement += glm::vec3(0, -1, 0);
+		}
+		_cameraMoved = true;
     }
+
+	if (!_window->isKeyPressed(Keys::LEFT_SHIFT) || !_camera->getLocked())
+	{
+		_cameraSpeed = _baseSpeed;
+	}
 }
 
 int Game::updateCPU(void* arg0)
 {
     handleInput();
-
-    for (size_t i = 0; i < _floor.size(); ++i)
-    {
-        Pool::ThreadPool::get()->enqueue<Cube>(&Cube::updateCPU, _floor[i], nullptr);
-    }
-
+	updateCamera();
+	
     return Updater::updateCPU(arg0);
 }
 
 int Game::updateGPU()
 {
-	for (size_t i = 0; i < _floor.size(); ++i)
-	{
-		_floor[i]->updateGPU();
-	}
-
 	_camera->toGPU(_program);
 
 	return Updater::updateGPU();
 }
 
-void Game::updateCamera(bool onMain/* = false*/)
+void Game::updateCamera(bool interpolate/* = false*/, float interValue/* = 1.0f*/)
 {
+	_camera->setInterpolation(interpolate);
+	
     if (_deltaX != 0 || _deltaY != 0 || _cameraMoved)
     {
         if (_deltaX != 0 || _deltaY != 0)
         {
-            _camera->rotateCamera(_deltaX * 0.0016f, _deltaY * 0.0016f);
+			_camera->rotateCamera(_deltaX * 0.0016f * (interpolate ? interValue : 1.0f), _deltaY * 0.0016f * (interpolate ? interValue : 1.0f));
         }
 
         if (_cameraMoved)
         {
-            _camera->moveCamera(_cameraSpeed, _cameraMovement);
+			_camera->moveCamera(_cameraSpeed * (interpolate ? interValue : 1.0f), _cameraMovement);
         }
     }
 }
 
 void Game::draw(float interpolate)
 {
-    updateCamera();
+	updateCamera(true, interpolate);
+	_camera->toGPU(_program);
 
     /* Render here */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

@@ -6,6 +6,7 @@
 namespace Shader
 {
     class Program;
+	class Texture;
 }
 
 class Cube : public Object
@@ -14,7 +15,7 @@ public:
     Cube(const uint32_t id, Shader::Program* program);
 
     void quad(int a, int b, int c, int d);
-    void initialize() override;
+    void initialize(void* texturePointer) override;
     void draw(float interpolate) override;
 
 	int updateCPU(void* arg0) override;
@@ -28,6 +29,10 @@ private:
 
     point4 vertices[8]; // 8 vertexs del cub
     color4 vertex_colors[8]; // 8 colors RGBA associats a cada vertex
+
+	glm::vec2* _textureCoords;
+
+	Shader::Texture* _texture;
 
     int Index;
 };

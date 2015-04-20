@@ -20,7 +20,7 @@ public:
     void mainThread();
 	virtual int updateCPU(void* arg0) override;
 	virtual int updateGPU() override;
-    void updateCamera(bool onMain = false);
+	void updateCamera(bool interpolate = false, float interValue = 1.0f);
     virtual void handleInput();
 
     virtual void initializeGL();
@@ -36,7 +36,8 @@ private:
     
     bool _cameraMoved;
     double _deltaX;
-    double _deltaY;
+	double _deltaY;
+	glm::vec3 _baseSpeed;
     glm::vec3 _cameraSpeed;
     glm::vec3 _cameraMovement;
 

@@ -11,7 +11,7 @@ public:
     Object(const uint32_t id);
     virtual ~Object();
 
-    virtual void initialize() = 0;
+    virtual void initialize(void*) = 0;
     virtual void draw(float interpolate) = 0;
     
     virtual int updateCPU(void* arg0) = 0;
