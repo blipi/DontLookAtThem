@@ -38,24 +38,38 @@ macro(copy_dirs GLOBPAT DESTINATION)
     ${GLOBPAT})
   add_custom_target(resources ALL
     DEPENDS ${GLOBPAT}
-	
+
     COMMENT "Copying files: ${COPY_DIRS}")
 
   foreach(FILENAME ${COPY_DIRS})
     set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/${FILENAME}")
     set(DST "${DESTINATION}")
 
-    add_custom_command(
-      TARGET resources
-      COMMAND ${CMAKE_COMMAND} -E remove_directory ${DST}
-		COMMENT "Remove ${DST}"
-    )
+    if (UNIX)
+        add_custom_command(
+          TARGET resources
+          COMMAND ${CMAKE_COMMAND} -E remove ${DST}
+    		COMMENT "Remove ${DST}"
+        )
 
-    add_custom_command(
-      TARGET resources
-      COMMAND ${CMAKE_COMMAND} -E copy_directory ${SRC} ${DST}
-	  COMMENT "copy_directory ${SRC} ${DST}"
-    )
+        add_custom_command(
+          TARGET resources
+          COMMAND ${CMAKE_COMMAND} -E create_symlink ${SRC} ${DST}
+          COMMENT "copy_directory ${SRC} ${DST}"
+        )
+    else (UNIX)
+        add_custom_command(
+          TARGET resources
+          COMMAND ${CMAKE_COMMAND} -E remove_directory ${DST}
+    		COMMENT "Remove ${DST}"
+        )
+
+        add_custom_command(
+          TARGET resources
+          COMMAND ${CMAKE_COMMAND} -E copy_directory ${SRC} ${DST}
+    	  COMMENT "copy_directory ${SRC} ${DST}"
+        )
+    endif (UNIX)
 
     add_dependencies(resources DontLookAtThem)
   endforeach(FILENAME)

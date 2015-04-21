@@ -1,9 +1,9 @@
 #if __VERSION__<130
-#define IN varying
-#define OUT varying
+    #define IN varying
+    #define OUT varying
 #else
-#define IN in
-#define OUT out
+    #define IN in
+    #define OUT out
 #endif
 
 uniform sampler2D texSampler;
@@ -14,5 +14,5 @@ IN vec4 color;
 void main()
 {
    //gl_FragColor = color;
-   gl_FragColor = texture(texSampler, texCoords.st);
+   gl_FragColor = texture2D(texSampler, texCoords.st);
 }
