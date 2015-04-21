@@ -5,6 +5,7 @@
 class Window;
 class Cube;
 class Camera;
+class Player;
 
 namespace Shader
 {
@@ -30,6 +31,8 @@ public:
 private:
     Window* _window;
     Shader::Program* _program;
+
+	Player* _player;
 
     Camera* _camera;
     std::vector<Cube*> _floor;

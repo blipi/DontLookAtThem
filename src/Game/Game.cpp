@@ -4,6 +4,7 @@
 #include "Cube.hpp"
 #include "Object.hpp"
 #include "Camera.hpp"
+#include "Player.hpp"
 
 #include <Program.hpp>
 #include <Resources.hpp>
@@ -26,7 +27,16 @@ Updater(),
     _program = new Shader::Program();
     _camera = new Camera(_sceneDimensions);
 
-	Shader::Texture* texture = new Shader::Texture(Resources::getPath("terrain", "grass_green_d.DDS").c_str());
+	Shader::Texture* playerTexture = new Shader::Texture(Resources::getPath("terrain", "savanna_yellow_d.bmp").c_str());
+
+	glm::vec3 pos(0, 0, 0);
+	_player = new Player(pos, _program);
+	_player->initialize((void*)playerTexture);
+	_player->translate(glm::vec3(0, 0.5f, 0));
+
+	_camera->attachTo(_player);
+
+	Shader::Texture* texture = new Shader::Texture(Resources::getPath("terrain", "grass_green_d.bmp").c_str());
 
     for (int i = 0; i < 20; ++i)
     {
@@ -34,7 +44,7 @@ Updater(),
         {
             Cube* cube = new Cube(0, _program);
             cube->initialize((void*)texture);
-            cube->translate(glm::vec3(-9.50 + i, 0, -9.50 + j));
+            cube->translate(glm::vec3(-9.50 + i, -0.50, -9.50 + j));
 
             _floor.push_back(cube);
         }
@@ -141,8 +151,12 @@ void Game::handleInput()
 
     if (_window->isKeyPressed(Keys::SPACE))
     {
-        _cameraMovement += glm::vec3(0, 1, 0);
-        _cameraMoved = true;
+        //_cameraMovement += glm::vec3(0, 1, 0);
+        //_cameraMoved = true;
+		if (_player->isInFloor())
+		{
+			_player->jump();
+		}
     }
     else if (_window->isKeyPressed(Keys::LEFT_SHIFT))
     {
@@ -167,6 +181,8 @@ int Game::updateCPU(void* arg0)
 {
     handleInput();
 	updateCamera();
+
+	_player->updateCPU(nullptr);
 	
     return Updater::updateCPU(arg0);
 }
@@ -174,6 +190,7 @@ int Game::updateCPU(void* arg0)
 int Game::updateGPU()
 {
 	_camera->toGPU(_program);
+	_player->updateGPU();
 
 	return Updater::updateGPU();
 }
@@ -184,11 +201,18 @@ void Game::updateCamera(bool interpolate/* = false*/, float interValue/* = 1.0f*
 	
     if (_deltaX != 0 || _deltaY != 0 || _cameraMoved)
     {
-        if (_deltaX != 0 || _deltaY != 0)
+		if ((_deltaX != 0 || _deltaY != 0) && !interpolate)
         {
-			_camera->rotateCamera(_deltaX * 0.0016f * (interpolate ? interValue : 1.0f), _deltaY * 0.0016f * (interpolate ? interValue : 1.0f));
-        }
+			float angX = _deltaX * Scheduler::get()->dt() * (interpolate ? 0.0f : 1.0f);
+			float angY = _deltaY * Scheduler::get()->dt() * (interpolate ? 0.0f : 1.0f);
+			//_camera->rotateCamera(angX, angY);
 
+			_player->translate(-_player->getPosition()); // Move to origin (x, y, z) - (x, y, z) = (0, 0, 0)
+			_player->rotate(glm::vec3(0, -1.0f, 0), angX);
+			_player->rotate(glm::vec3(0, 0, -1.0f), angY);
+			_player->translate(_player->getPosition());
+        }
+		
         if (_cameraMoved)
         {
 			_camera->moveCamera(_cameraSpeed * (interpolate ? interValue : 1.0f), _cameraMovement);
@@ -208,6 +232,8 @@ void Game::draw(float interpolate)
     {
         _floor[i]->draw(interpolate);
     }
+
+	_player->draw(interpolate);
 
     glfwSwapBuffers(**_window);
 }
