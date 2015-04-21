@@ -20,7 +20,7 @@ Updater(),
     _deltaX(0),
     _deltaY(0),
     _cameraMoved(false),
-	_baseSpeed(2 / 10.0f * Scheduler::get()->dt(), 2 / 10.0f * Scheduler::get()->dt(), 2 / 10.0f * Scheduler::get()->dt()),
+	_baseSpeed(2 * Scheduler::get()->dt(), 2 * Scheduler::get()->dt(), 2 * Scheduler::get()->dt()),
 	_cameraSpeed(_baseSpeed)
 {
     _window->setMouseFixed();
@@ -32,7 +32,7 @@ Updater(),
 	glm::vec3 pos(0, 0, 0);
 	_player = new Player(pos, _program);
 	_player->initialize((void*)playerTexture);
-	_player->translate(glm::vec3(0, 0.5f, 0));
+	_player->translate(glm::vec3(0, 0.0f, 0));
 
 	_camera->attachTo(_player);
 
@@ -44,7 +44,7 @@ Updater(),
         {
             Cube* cube = new Cube(0, _program);
             cube->initialize((void*)texture);
-            cube->translate(glm::vec3(-9.50 + i, -0.50, -9.50 + j));
+            cube->translate(glm::vec3(-9.50 + i, -1.0f, -9.50 + j));
 
             _floor.push_back(cube);
         }
@@ -114,6 +114,19 @@ void Game::handleInput()
         
     }
 
+	double xoffset;
+	double yoffset;
+	_window->getMouseWheel(xoffset, yoffset);
+
+	if (yoffset > 0)
+	{
+		_camera->zoomIn(yoffset * 10.0f * Scheduler::get()->dt());
+	}
+	else if (yoffset < 0)
+	{
+		_camera->zoomOut(-yoffset * 10.0f * Scheduler::get()->dt());
+	}
+
     // L
     if (_window->isKeyPressed(Keys::L))
     {
@@ -125,12 +138,12 @@ void Game::handleInput()
 
     if (_window->isKeyPressed(Keys::W))
     {
-        _cameraMovement = glm::vec3(1, 0, 0);
+        _cameraMovement = -_camera->getDirection();
         _cameraMoved = true;
     }
     else if (_window->isKeyPressed(Keys::S))
     {
-        _cameraMovement = glm::vec3(-1, 0, 0);
+		_cameraMovement = _camera->getDirection();
         _cameraMoved = true;
     }
     else
@@ -140,12 +153,12 @@ void Game::handleInput()
     
     if (_window->isKeyPressed(Keys::A))
     {
-        _cameraMovement += glm::vec3(0, 0, -1);
+		_cameraMovement += _camera->getHorDirection();
         _cameraMoved = true;
     }
     else if (_window->isKeyPressed(Keys::D))
     {
-        _cameraMovement += glm::vec3(0, 0, 1);
+		_cameraMovement += -_camera->getHorDirection();
         _cameraMoved = true;
     }
 
@@ -205,17 +218,15 @@ void Game::updateCamera(bool interpolate/* = false*/, float interValue/* = 1.0f*
         {
 			float angX = _deltaX * Scheduler::get()->dt() * (interpolate ? 0.0f : 1.0f);
 			float angY = _deltaY * Scheduler::get()->dt() * (interpolate ? 0.0f : 1.0f);
-			//_camera->rotateCamera(angX, angY);
 
-			_player->translate(-_player->getPosition()); // Move to origin (x, y, z) - (x, y, z) = (0, 0, 0)
-			_player->rotate(glm::vec3(0, -1.0f, 0), angX);
-			_player->rotate(glm::vec3(0, 0, -1.0f), angY);
-			_player->translate(_player->getPosition());
+			_player->centeredRotation(glm::vec3(0, -1.0f, 0), angX);
+			_player->centeredRotation(glm::vec3(0, 0, -1.0f), angY);
         }
 		
         if (_cameraMoved)
         {
-			_camera->moveCamera(_cameraSpeed * (interpolate ? interValue : 1.0f), _cameraMovement);
+			//_camera->moveCamera(_cameraSpeed * (interpolate ? interValue : 1.0f), _cameraMovement);
+			_player->translate(_cameraSpeed * _cameraMovement);
         }
     }
 }

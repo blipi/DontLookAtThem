@@ -24,7 +24,6 @@ int Player::updateCPU(void* arg0)
 		}
 		
 		translate(_forces);
-		_position += _forces;
 
 		emit((Object*)this, &Player::moved);
 	}
